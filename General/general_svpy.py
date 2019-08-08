@@ -1,6 +1,10 @@
 class sv_model:
 	def __init__(self,file_path,GUI=False):
-		import sys,os,pandas
+		import sys,os
+		try:
+			import pandas
+		except:
+			sys.path.append('/usr/lib/python3/dist-package')
 		try:
 			print('Gathering CSV Data...')
 			self.data = pandas.read_csv(file_path,header=None)#importing csv type data using pandas module
@@ -39,20 +43,31 @@ class sv_model:
 
 	def __contour__(self,path_object,slice_index):
 		from sv import Contour,GUI
+		import numpy as np 
 		Contour.SetContourKernel('Circle')
 		c = Contour.pyContour()
 		c.NewObject('path_object'+str(slice_index),path_object,slice_index)
 		
 	def __geometry__():
 		pass 
+
+
 	def __solid__():
 		pass
+
+
 	def mesh():
 		pass 
+
+
 	def pre():
-		pass 
+		pass
+
+
 	def sim():
 		pass
+
+
 	def post():
 		pass
 
