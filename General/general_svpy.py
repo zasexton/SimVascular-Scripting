@@ -4,7 +4,7 @@ class sv_model:
 		try:
 			import pandas
 		except:
-			sys.path.append('/usr/lib/python3/dist-package')
+			sys.path.append('C:\\Users\\Zack\\AppData\\Local\\Programs\\Python\\Python37')
 		try:
 			print('Gathering CSV Data...')
 			self.data = pandas.read_csv(file_path,header=None)#importing csv type data using pandas module
