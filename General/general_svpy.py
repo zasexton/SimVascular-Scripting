@@ -4,7 +4,17 @@ class sv_model:
 		try:
 			import pandas
 		except:
+<<<<<<< Updated upstream
 			sys.path.append('C:\\Users\\Zack\\AppData\\Local\\Programs\\Python\\Python37')
+=======
+			#sys.path.append('/usr/lib/python3/dist-package')
+			#sys.path.append('usr/lib/python3.5')
+			#sys.path.append('/usr/lib/python3.5/plat-x86_64-linux-gnu')
+			sys.path.append('/usr/local/lib/python3.5/dist-packages')
+			sys.path.append('/usr/lib/python3/dist-packages')
+			sys.path.append('/home/zacharysexton/.local/lib/python3.5/site-packages')
+			import pandas
+>>>>>>> Stashed changes
 		try:
 			print('Gathering CSV Data...')
 			self.data = pandas.read_csv(file_path,header=None)#importing csv type data using pandas module
@@ -18,7 +28,7 @@ class sv_model:
 								 'Mesh'      :[],
 								 'Simulation':[]}
 		except:
-			print('file_path is inaccessible...')
+			print('File_path is inaccessible...')
 			return 
 		self.GUI = GUI
 		self.data = self.data.get_values()
@@ -27,8 +37,12 @@ class sv_model:
 		from sv import Path,GUI,Repository
 		p = Path.pyPath()
 		p.NewObject(sv_path_name)
-		for i in range(len(sv_path[:][0])):
-			p.AddPoint(sv_path[i][:])
+		for i in range(len(sv_path[:][1])):
+			print(sv_path[i][:])
+			temp = []
+			for j in sv_path[i][:]:
+				temp.append(float(j))
+			p.AddPoint(temp)
 		p.CreatePath()
 		self.data_manager['Paths'].append(sv_path_name)
 		if self.GUI == True:
@@ -37,9 +51,11 @@ class sv_model:
 	def path(self):
 		import numpy as np 
 		ind = int(np.nonzero(self.data[0,:]=='Path')[0]) #will be a limitation later
-		path_lengths = __path_lengths__(self.data[:,ind])
+		print(self.data[:,ind])
+		path_lengths = self.__path_lengths__(self.data[:,ind])[1:]
+		print(path_lengths)
 		for i in range(len(path_lengths)-1):
-			__path__(self.data[path_lengths[i]:path_lengths[i+1],1:3],self.data[path_lengths[i],ind])
+			self.__path__(self.data[path_lengths[i]:path_lengths[i+1],1:4],self.data[path_lengths[i],ind])
 
 	def __contour__(self,path_object,slice_index):
 		from sv import Contour,GUI
@@ -71,10 +87,12 @@ class sv_model:
 	def post():
 		pass
 
-	def __path_lengths__(path_vector):
+	def __path_lengths__(self,path_vector):
 		temp = []
 		for i in range(len(path_vector)):
 			if path_vector[i].isspace()==False:
+				temp.append(i)
+			elif i == len(path_vector)-1:
 				temp.append(i)
 			else:
 				pass 
