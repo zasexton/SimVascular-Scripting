@@ -26,7 +26,7 @@ class sv_model:
 		self.GUI = GUI
 		self.data = self.data.get_values()
 
-	def __path__(self,sv_path,sv_path_name):
+	def __path__(self,sv_path,sv_path_name): #PASSING
 		from sv import Path,GUI,Repository
 		p = Path.pyPath()
 		p.NewObject(sv_path_name)
@@ -41,7 +41,7 @@ class sv_model:
 		if self.GUI == True:
 			GUI.ImportPathFromRepos(sv_path_name,'Paths')
 
-	def path(self):
+	def path(self): #PASSING
 		import numpy as np 
 		ind = int(np.nonzero(self.data[0,:]=='Path')[0]) #will be a limitation later
 		print(self.data[:,ind])
@@ -50,13 +50,26 @@ class sv_model:
 		for i in range(len(path_lengths)-1):
 			self.__path__(self.data[path_lengths[i]:path_lengths[i+1],1:4],self.data[path_lengths[i],ind])
 
-	def __contour__(self,path_object,slice_index):
+	def __contour__(self,path_object,slice_index,radius):  #PASSING
 		from sv import Contour,GUI
 		import numpy as np 
 		Contour.SetContourKernel('Circle')
 		c = Contour.pyContour()
-		c.NewObject('path_object'+str(slice_index),path_object,slice_index)
-		
+		c.NewObject('C_'+path_object+'_'+str(slice_index),path_object,slice_index)
+		c.SetCtrlPtsByRadius([0,0,0],radius)
+		c.Create()
+		self.data_manager['Contours'].append('C_'+path_object+'_'+str(slice_index))
+		c.GetPolyData('C_'+path_object+'_'+str(slice_index)+'p')
+		self.data_manager['PolyData'].append('C_'+path_object+'_'+str(slice_index)+'p')
+		return 'C_'+path_object+'_'+str(slice_index)
+
+	def __contour_path__(self,path_object,slices,radii):
+		path_contour_list = []
+		for i in range(slices):
+			path_contour_list.append(self.__contour__(path_object,i,r))
+		if self.GUI == True:
+			GUI.ImportContoursFromRepos('Contours_'+path_object,path_contour_list,path_object,'Segmentations')
+		return 
 	def __geometry__():
 		pass 
 
