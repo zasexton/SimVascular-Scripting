@@ -4,17 +4,10 @@ class sv_model:
 		try:
 			import pandas
 		except:
-<<<<<<< Updated upstream
-			sys.path.append('C:\\Users\\Zack\\AppData\\Local\\Programs\\Python\\Python37')
-=======
-			#sys.path.append('/usr/lib/python3/dist-package')
-			#sys.path.append('usr/lib/python3.5')
-			#sys.path.append('/usr/lib/python3.5/plat-x86_64-linux-gnu')
 			sys.path.append('/usr/local/lib/python3.5/dist-packages')
 			sys.path.append('/usr/lib/python3/dist-packages')
 			sys.path.append('/home/zacharysexton/.local/lib/python3.5/site-packages')
 			import pandas
->>>>>>> Stashed changes
 		try:
 			print('Gathering CSV Data...')
 			self.data = pandas.read_csv(file_path,header=None)#importing csv type data using pandas module
@@ -37,7 +30,7 @@ class sv_model:
 		from sv import Path,GUI,Repository
 		p = Path.pyPath()
 		p.NewObject(sv_path_name)
-		for i in range(len(sv_path[:][1])):
+		for i in range(len(sv_path[:,0])):
 			print(sv_path[i][:])
 			temp = []
 			for j in sv_path[i][:]:
@@ -93,7 +86,7 @@ class sv_model:
 			if path_vector[i].isspace()==False:
 				temp.append(i)
 			elif i == len(path_vector)-1:
-				temp.append(i)
+				temp.append(i+1)
 			else:
 				pass 
 		return temp
