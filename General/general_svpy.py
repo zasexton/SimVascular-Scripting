@@ -13,13 +13,14 @@ class sv_model:
 			self.data = pandas.read_csv(file_path,header=None)#importing csv type data using pandas module
 			print('Creating project...')
 			self.name = os.path.basename(file_path)
-			self.data_manager = {'Paths'     :[],
-								 'Contours'  :[],
-								 'PolyData'  :[],
-								 'Solids'    :[],
-								 'VTK'       :[],
-								 'Mesh'      :[],
-								 'Simulation':[]}
+			self.data_manager = {'Paths'      :[],
+								 'Contours'   :[],
+								 'PolyData'   :[],
+								 'Solids'     :[],
+								 'VTK'        :[],
+								 'Mesh'       :[],
+								 'Simulation' :[],
+								 'Path_Points':{}}
 		except:
 			print('File_path is inaccessible...')
 			return 
@@ -30,11 +31,13 @@ class sv_model:
 		from sv import Path,GUI,Repository
 		p = Path.pyPath()
 		p.NewObject(sv_path_name)
+		self.data_manager['Path_Points'][sv_path_name] = []
 		for i in range(len(sv_path[:,0])):
 			print(sv_path[i][:])
 			temp = []
 			for j in sv_path[i][:]:
 				temp.append(float(j))
+			self.data_manager['Path_Points'][sv_path_name].append(temp)
 			p.AddPoint(temp)
 		p.CreatePath()
 		self.data_manager['Paths'].append(sv_path_name)
@@ -43,12 +46,14 @@ class sv_model:
 
 	def path(self): #PASSING
 		import numpy as np 
+		self.path_radii = {}
 		ind = int(np.nonzero(self.data[0,:]=='Path')[0]) #will be a limitation later
 		print(self.data[:,ind])
 		path_lengths = self.__path_lengths__(self.data[:,ind])[1:]
 		print(path_lengths)
 		for i in range(len(path_lengths)-1):
 			self.__path__(self.data[path_lengths[i]:path_lengths[i+1],1:4],self.data[path_lengths[i],ind])
+			self.path_radii[self.data[path_lengths[i],ind]] = self.data[path_lengths[i]:path_lengths[i+1],4] #the radius index is not always garunteed to be in column 4
 
 	def __contour__(self,path_object,slice_index,radius):  #PASSING
 		from sv import Contour,GUI
@@ -63,13 +68,26 @@ class sv_model:
 		self.data_manager['PolyData'].append('C_'+path_object+'_'+str(slice_index)+'p')
 		return 'C_'+path_object+'_'+str(slice_index)
 
-	def __contour_path__(self,path_object,slices,radii):
+	def __contour_path__(self,path_object,slices=None):
+		from sv import GUI,Path
 		path_contour_list = []
+		if slices==None:
+			r = self.path_radii[path_object]
+			slices = len(r)
+			Path.pyPath().GetObject(path_object)
+			slice_index = []
+			object_path = Path.pyPath().GetPathPosPts()
+			for path_point in self.data_manager['Path_Points'][path_object]:
+				slice_index.append(object_path.index(path_point))
+		else:
+			#will require interpolation
+			pass 
+
 		for i in range(slices):
-			path_contour_list.append(self.__contour__(path_object,i,r))
+			path_contour_list.append(self.__contour__(path_object,i,int(r[i]),slice_index[i]))
 		if self.GUI == True:
 			GUI.ImportContoursFromRepos('Contours_'+path_object,path_contour_list,path_object,'Segmentations')
-		return 
+
 	def __geometry__():
 		pass 
 
@@ -103,3 +121,6 @@ class sv_model:
 			else:
 				pass 
 		return temp
+
+	def __linear_interp__(first_value,second_value,first_slice,second_slice):
+		pass
