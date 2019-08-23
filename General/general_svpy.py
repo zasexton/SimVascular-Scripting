@@ -56,7 +56,7 @@ class sv_model:
 			self.__path__(self.data[path_lengths[i]:path_lengths[i+1],1:4],self.data[path_lengths[i],ind])
 			self.path_radii[self.data[path_lengths[i],ind]] = self.data[path_lengths[i]:path_lengths[i+1],4] #the radius index is not always garunteed to be in column 4
 
-	def __contour__(self,path_object,slice_index,radius):  #PASSING
+	def __contour_subfunction__(self,path_object,slice_index,radius):  #PASSING
 		from sv import Contour,GUI
 		import numpy as np 
 		Contour.SetContourKernel('Circle')
@@ -86,9 +86,17 @@ class sv_model:
 			pass 
 		print(slice_index)
 		for i in range(slices):
-			path_contour_list.append(self.__contour__(path_object,slice_index[i],int(r[i])))
+			path_contour_list.append(self.__contour_subfunction__(path_object,slice_index[i],int(r[i])))
 		if self.GUI == True:
 			GUI.ImportContoursFromRepos('Contours_'+path_object,path_contour_list,path_object,'Segmentations')
+		return 
+
+
+	def contour(self):  #PASSING 
+		for i in self.data_manager['Paths']:
+			self.__contour_path__(i)		
+		pass
+
 
 	def __geometry__():
 		pass 
@@ -135,4 +143,7 @@ class sv_model:
 			for i in Repository.List():
 				Repository.Delete(i)
 			print('Repository Cleared')
+			for key in self.data_manager.keys():
+				self.data_manager[key] = []
+			print('Data Manager Cleared')
 		return
