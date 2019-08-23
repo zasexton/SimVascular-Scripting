@@ -9,6 +9,7 @@ class sv_model:
 			sys.path.append('/home/zacharysexton/.local/lib/python3.5/site-packages')
 			import pandas
 		try:
+			self.clear()
 			print('Gathering CSV Data...')
 			self.data = pandas.read_csv(file_path,header=None)#importing csv type data using pandas module
 			print('Creating project...')
@@ -61,7 +62,7 @@ class sv_model:
 		Contour.SetContourKernel('Circle')
 		c = Contour.pyContour()
 		c.NewObject('C_'+path_object+'_'+str(slice_index),path_object,slice_index)
-		c.SetCtrlPtsByRadius([0,0,0],radius)
+		c.SetCtrlPtsByRadius(self.data_manager['Path_Points'][path_object][int(slice_index/25)],radius) #change later
 		c.Create()
 		self.data_manager['Contours'].append('C_'+path_object+'_'+str(slice_index))
 		c.GetPolyData('C_'+path_object+'_'+str(slice_index)+'p')
@@ -74,17 +75,18 @@ class sv_model:
 		if slices==None:
 			r = self.path_radii[path_object]
 			slices = len(r)
-			Path.pyPath().GetObject(path_object)
+			p = Path.pyPath()
+			p.GetObject(path_object)
 			slice_index = []
-			object_path = Path.pyPath().GetPathPosPts()
+			object_path = p.GetPathPosPts()
 			for path_point in self.data_manager['Path_Points'][path_object]:
 				slice_index.append(object_path.index(path_point))
 		else:
 			#will require interpolation
 			pass 
-
+		print(slice_index)
 		for i in range(slices):
-			path_contour_list.append(self.__contour__(path_object,i,int(r[i]),slice_index[i]))
+			path_contour_list.append(self.__contour__(path_object,slice_index[i],int(r[i])))
 		if self.GUI == True:
 			GUI.ImportContoursFromRepos('Contours_'+path_object,path_contour_list,path_object,'Segmentations')
 
@@ -124,3 +126,13 @@ class sv_model:
 
 	def __linear_interp__(first_value,second_value,first_slice,second_slice):
 		pass
+
+	def clear(self):
+		from sv import Repository
+		if len(Repository.List()) == 0:
+			print('Repository Empty')
+		else:
+			for i in Repository.List():
+				Repository.Delete(i)
+			print('Repository Cleared')
+		return
