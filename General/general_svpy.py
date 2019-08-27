@@ -15,7 +15,12 @@ class sv_model:
 								 'VTK'        :[],
 								 'Mesh'       :[],
 								 'Simulation' :[],
-								 'Path_Points':{}}
+								 'Path_Points':{},
+								 'Path_Contours':{},
+								 'Path_PolyData':{},
+								 'Path_SampleData':{},
+								 'Path_AlignedData':{},
+								 'Path_Lofts':{}}
 		except:
 			print('File_path is inaccessible...')
 			return 
@@ -55,8 +60,10 @@ class sv_model:
 		c.SetCtrlPtsByRadius(self.data_manager['Path_Points'][path_object][int(slice_index/25)],radius) #change later
 		c.Create()
 		self.data_manager['Contours'].append('C_'+path_object+'_'+str(slice_index))
+		self.data_manager['Path_Contours'][path_object].append('C_'+path_object+'_'+str(slice_index))
 		c.GetPolyData('C_'+path_object+'_'+str(slice_index)+'p')
 		self.data_manager['PolyData'].append('C_'+path_object+'_'+str(slice_index)+'p')
+		self.data_manager['Path_PolyData'][path_object].append('C_'+path_object+'_'+str(slice_index)+'p')
 		return 'C_'+path_object+'_'+str(slice_index)
 
 	def __contour_path__(self,path_object,slices=None):
@@ -83,14 +90,59 @@ class sv_model:
 
 
 	def contour(self):  #PASSING 
-		for i in self.data_manager['Paths']:
-			self.__contour_path__(i)		
+		for path_object in self.data_manager['Paths']:
+			self.data_manager['Path_Contours'][path_object] = []
+			self.data_manager['Path_PolyData'][path_object] = []
+			self.__contour_path__(path_object)		
 		pass
 
 
-	def __geometry__():
-		pass 
+	def __geometry__(self,path_object,spline=True,NumSegs=60):
+		from sv import Geom,GUI
+		import math
+		for PolyData in self.data_manager['Path_PolyData'][path_object]:
+			Geom.SampleLoop(PolyData,NumSegs,PolyData+'s')
+			self.data_manager['Path_SampleData'][path_object].append(PolyData+'s')
+		# _tangent_ = [0,0,0]
+		# _cosine_ = [0,0,0]
+		# _cosine_adjustments_ = [None]*len(self.data_manager['Path_Points'][path_object])
+		# _tangent_adjustments_ = [None]*len(self.data_manager['Path_Points'][path_object])
+		# for calls in range(len(self.data_manager['Path_Points'][path_object])):
+		# 	_tangent_[0],_tangent_[1],_tangent_[2] = math.tan(self.data_manager['Path_Points'][path_object][calls][0]),math.tan(self.data_manager['Path_Points'][path_object][calls][1]),math.tan(self.data_manager['Path_Points'][path_object][calls][2])
+		# 	_tangent_adjustments_[calls] = _tangent_ 
+		# 	_cosine_[0],_cosine_[1],_cosine_[2] = math.cos(self.data_manager['Path_Points'][path_object][calls][0]),math.cos(self.data_manager['Path_Points'][path_object][calls][1]),math.cos(self.data_manager['Path_Points'][path_object][calls][2])
+		# 	_cosine_adjustments_[calls] = _cosine_
+		# temp = 0
+		# self.data_manager['Path_OrientedData'][path_object] = []
+		# for Sampled_PolyData in self.data_manager['Path_SampleData'][path_object]:
+		# 	Geom.OrientProfile(Sampled_PolyData,self.data_manager['Path_Points'][path_object][temp],_tangent_adjustments_[temp],_cosine_adjustments_[temp],Sampled_PolyData+'O')
+		# 	self.data_manager['Path_OrientedData'][path_object].append(Sampled_PolyData+'O')
+		for index in range(len(self.data_manager['Path_PolyData'][path_object])-1):
+			if index == 0:
+				Geom.AlignProfile(self.data_manager['Path_SampleData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index))
+				self.data_manager['Path_AlignedData'][path_object].append(self.data_manager['Path_SampleData'][path_object][index])
+				self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
+			else:
+				pass
+				# Geom.AlignProfile(self.data_manager['Path_AlignedData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index))
+				# self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
+		print(self.data_manager['Path_AlignedData'][path_object])
+		# if spline == True:
+		# 	Geom.LoftSolid(self.data_manager['Path_SampleData'][path_object],path_object+'_loft',60,12,10,20,0,1)
+		# else:
+		# 	pass #will have nurbs lofting later 
+		# if self.GUI == True:
+		# 	GUI.ImportPolyDataFromRepos(path_object+'_loft','Models')
+		# else:
+		# 	pass
+		return 
 
+	def loft(self):	
+		for path_object in self.data_manager['Paths']:
+			self.data_manager['Path_SampleData'][path_object] = []
+			self.data_manager['Path_Lofts'][path_object] = []
+			self.__geometry__(path_object)
+		return 
 
 	def __solid__():
 		pass
