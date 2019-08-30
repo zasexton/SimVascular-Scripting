@@ -119,28 +119,28 @@ class sv_model:
 		# 	self.data_manager['Path_OrientedData'][path_object].append(Sampled_PolyData+'O')
 		for index in range(len(self.data_manager['Path_PolyData'][path_object])-1):
 			if index == 0:
-				Geom.AlignProfile(self.data_manager['Path_SampleData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index))
+				Geom.AlignProfile(self.data_manager['Path_SampleData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index),0)
 				self.data_manager['Path_AlignedData'][path_object].append(self.data_manager['Path_SampleData'][path_object][index])
 				self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
 			else:
-				pass
-				# Geom.AlignProfile(self.data_manager['Path_AlignedData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index))
-				# self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
+				Geom.AlignProfile(self.data_manager['Path_AlignedData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index),0)
+				self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
 		print(self.data_manager['Path_AlignedData'][path_object])
-		# if spline == True:
-		# 	Geom.LoftSolid(self.data_manager['Path_SampleData'][path_object],path_object+'_loft',60,12,10,20,0,1)
-		# else:
-		# 	pass #will have nurbs lofting later 
-		# if self.GUI == True:
-		# 	GUI.ImportPolyDataFromRepos(path_object+'_loft','Models')
-		# else:
-		# 	pass
+		if spline == True:
+			Geom.LoftSolid(self.data_manager['Path_AlignedData'][path_object],path_object+'_loft',260,120,100,20,0,1)
+		else:
+			pass #will have nurbs lofting later 
+		if self.GUI == True:
+			GUI.ImportPolyDataFromRepos(path_object+'_loft','Models')
+		else:
+			pass
 		return 
 
 	def loft(self):	
 		for path_object in self.data_manager['Paths']:
 			self.data_manager['Path_SampleData'][path_object] = []
 			self.data_manager['Path_Lofts'][path_object] = []
+			self.data_manager['Path_AlignedData'][path_object] = []
 			self.__geometry__(path_object)
 		return 
 
