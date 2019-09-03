@@ -103,11 +103,13 @@ class sv_model:
 		for PolyData in self.data_manager['Path_PolyData'][path_object]:
 			Geom.SampleLoop(PolyData,NumSegs,PolyData+'s')
 			self.data_manager['Path_SampleData'][path_object].append(PolyData+'s')
+
+		## May be a useless section from Tobias code ##
 		# _tangent_ = [0,0,0]
 		# _cosine_ = [0,0,0]
 		# _cosine_adjustments_ = [None]*len(self.data_manager['Path_Points'][path_object])
 		# _tangent_adjustments_ = [None]*len(self.data_manager['Path_Points'][path_object])
-		# for calls in range(len(self.data_manager['Path_Points'][path_object])):
+		# for calls in range(len(self.data_manager['Path_Points'][path_object])):              
 		# 	_tangent_[0],_tangent_[1],_tangent_[2] = math.tan(self.data_manager['Path_Points'][path_object][calls][0]),math.tan(self.data_manager['Path_Points'][path_object][calls][1]),math.tan(self.data_manager['Path_Points'][path_object][calls][2])
 		# 	_tangent_adjustments_[calls] = _tangent_ 
 		# 	_cosine_[0],_cosine_[1],_cosine_[2] = math.cos(self.data_manager['Path_Points'][path_object][calls][0]),math.cos(self.data_manager['Path_Points'][path_object][calls][1]),math.cos(self.data_manager['Path_Points'][path_object][calls][2])
@@ -117,6 +119,7 @@ class sv_model:
 		# for Sampled_PolyData in self.data_manager['Path_SampleData'][path_object]:
 		# 	Geom.OrientProfile(Sampled_PolyData,self.data_manager['Path_Points'][path_object][temp],_tangent_adjustments_[temp],_cosine_adjustments_[temp],Sampled_PolyData+'O')
 		# 	self.data_manager['Path_OrientedData'][path_object].append(Sampled_PolyData+'O')
+		## Will remove in later version ##
 		for index in range(len(self.data_manager['Path_PolyData'][path_object])-1):
 			if index == 0:
 				Geom.AlignProfile(self.data_manager['Path_SampleData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index),0)
@@ -131,7 +134,7 @@ class sv_model:
 		else:
 			pass #will have nurbs lofting later 
 		if self.GUI == True:
-			GUI.ImportPolyDataFromRepos(path_object+'_loft','Models') 
+			GUI.ImportPolyDataFromRepos(path_object+'_loft','Models') #something is wrong with the lofting 
 		else:
 			pass
 		return 
