@@ -127,11 +127,11 @@ class sv_model:
 				self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
 		print(self.data_manager['Path_AlignedData'][path_object])
 		if spline == True:
-			Geom.LoftSolid(self.data_manager['Path_AlignedData'][path_object],path_object+'_loft',260,120,100,20,0,1)
+			Geom.LoftSolid(self.data_manager['Path_AlignedData'][path_object],path_object+'_loft',260,120,10,20,0,1)
 		else:
 			pass #will have nurbs lofting later 
 		if self.GUI == True:
-			GUI.ImportPolyDataFromRepos(path_object+'_loft','Models')
+			GUI.ImportPolyDataFromRepos(path_object+'_loft','Models') 
 		else:
 			pass
 		return 
