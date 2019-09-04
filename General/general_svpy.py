@@ -130,7 +130,7 @@ class sv_model:
 				self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
 		print(self.data_manager['Path_AlignedData'][path_object])
 		if spline == True:
-			Geom.LoftSolid(self.data_manager['Path_AlignedData'][path_object],path_object+'_loft',260,120,10,20,0,1)
+			Geom.LoftSolid(self.data_manager['Path_AlignedData'][path_object],path_object+'_loft',60,120,100,20,0,1)
 		else:
 			pass #will have nurbs lofting later 
 		if self.GUI == True:
@@ -147,7 +147,20 @@ class sv_model:
 			self.__geometry__(path_object)
 		return 
 
-	def __solid__():
+	def __solid_subprocess__(self,path_object):
+		from sv import Solid,Repository,VMTKUtils
+		Solid.SetKernel('PolyData')
+		solid = Solid.pySolidModel()
+		solid.NewObject(path_object+'_solid')
+		VMTKUtils.Cap_with_ids(path_object+'_loft',path_object+'_capped',0,0)
+		solid.SetVtkPolyData(path_object+'_capped')
+		solid.GetBoundaryFaces(45)
+		faceids = solid.GetFaceIds()
+		print(faceids)
+
+	def solid(self):
+		for path_object in self.data_manager['Paths']:
+			pass
 		pass
 
 
