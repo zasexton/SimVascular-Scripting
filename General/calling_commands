@@ -1,2 +1,4 @@
 #calling command 
 test = sv_model('/home/zacharysexton/Downloads/SimVascular-Scripting/General/test_data.csv',GUI=True)
+
+test = sv_model('/home/zacharysexton/Downloads/SimVascular-Scripting/General/test_data_2.csv',GUI=True)

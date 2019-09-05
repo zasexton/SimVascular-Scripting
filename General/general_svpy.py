@@ -83,7 +83,7 @@ class sv_model:
 			pass 
 		print(slice_index)
 		for i in range(slices):
-			path_contour_list.append(self.__contour_subfunction__(path_object,slice_index[i],int(r[i])))
+			path_contour_list.append(self.__contour_subfunction__(path_object,slice_index[i],float(r[i])))
 		if self.GUI == True:
 			GUI.ImportContoursFromRepos('Contours_'+path_object,path_contour_list,path_object,'Segmentations')
 		return 
@@ -154,15 +154,22 @@ class sv_model:
 		solid.NewObject(path_object+'_solid')
 		VMTKUtils.Cap_with_ids(path_object+'_loft',path_object+'_capped',0,0)
 		solid.SetVtkPolyData(path_object+'_capped')
+		self.data_manager['Solids'].append(path_object+'_capped')
 		solid.GetBoundaryFaces(45)
 		faceids = solid.GetFaceIds()
-		print(faceids)
+
+	def __Union__(self):
+		from sv import Geom 
+		Geom.All_union(self.data_manager['Solids'],len(self.data_manager['Solids']),'Model',0.00001)
+		pass
 
 	def solid(self):
 		for path_object in self.data_manager['Paths']:
-			pass
+			self.__solid_subprocess__(path_object)
 		pass
 
+	def smooth():
+		pass
 
 	def mesh():
 		pass 
