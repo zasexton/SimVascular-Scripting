@@ -25,6 +25,10 @@ class sv_model:
 			print('File_path is inaccessible...')
 			return 
 		self.GUI = GUI
+		self.path()
+		self.contour()
+		self.loft()
+		self.solid()
 
 	def __path__(self,sv_path,sv_path_name): #PASSING
 		from sv import Path,GUI,Repository
@@ -98,7 +102,7 @@ class sv_model:
 
 
 	def __geometry__(self,path_object,spline=True,NumSegs=60):
-		from sv import Geom,GUI
+		from sv import Geom,GUI,Solid
 		import math
 		for PolyData in self.data_manager['Path_PolyData'][path_object]:
 			Geom.SampleLoop(PolyData,NumSegs,PolyData+'s')
@@ -134,7 +138,8 @@ class sv_model:
 		else:
 			pass #will have nurbs lofting later 
 		if self.GUI == True:
-			GUI.ImportPolyDataFromRepos(path_object+'_loft','Models') #something is wrong with the lofting 
+			pass
+		#	GUI.ImportPolyDataFromRepos(path_object+'_loft','Models') #something is wrong with the lofting 
 		else:
 			pass
 		return 
@@ -155,13 +160,20 @@ class sv_model:
 		VMTKUtils.Cap_with_ids(path_object+'_loft',path_object+'_capped',0,0)
 		solid.SetVtkPolyData(path_object+'_capped')
 		self.data_manager['Solids'].append(path_object+'_capped')
-		solid.GetBoundaryFaces(45)
+		solid.GetBoundaryFaces(90)
 		faceids = solid.GetFaceIds()
 
 	def __Union__(self):
 		from sv import Geom 
 		Geom.All_union(self.data_manager['Solids'],len(self.data_manager['Solids']),'Model',0.00001)
 		pass
+
+	def __subtraction__(self):
+		from sv import Solid
+		temp = Solid.pySolidModel()
+		temp.Subtract('temp',self.data_manager['Solids'][0],self.data_manager['Solids'][1])
+		# temp.GetPolyData('temp_polydata')
+		return 
 
 	def solid(self):
 		for path_object in self.data_manager['Paths']:
