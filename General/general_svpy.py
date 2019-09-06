@@ -108,22 +108,6 @@ class sv_model:
 			Geom.SampleLoop(PolyData,NumSegs,PolyData+'s')
 			self.data_manager['Path_SampleData'][path_object].append(PolyData+'s')
 
-		## May be a useless section from Tobias code ##
-		# _tangent_ = [0,0,0]
-		# _cosine_ = [0,0,0]
-		# _cosine_adjustments_ = [None]*len(self.data_manager['Path_Points'][path_object])
-		# _tangent_adjustments_ = [None]*len(self.data_manager['Path_Points'][path_object])
-		# for calls in range(len(self.data_manager['Path_Points'][path_object])):              
-		# 	_tangent_[0],_tangent_[1],_tangent_[2] = math.tan(self.data_manager['Path_Points'][path_object][calls][0]),math.tan(self.data_manager['Path_Points'][path_object][calls][1]),math.tan(self.data_manager['Path_Points'][path_object][calls][2])
-		# 	_tangent_adjustments_[calls] = _tangent_ 
-		# 	_cosine_[0],_cosine_[1],_cosine_[2] = math.cos(self.data_manager['Path_Points'][path_object][calls][0]),math.cos(self.data_manager['Path_Points'][path_object][calls][1]),math.cos(self.data_manager['Path_Points'][path_object][calls][2])
-		# 	_cosine_adjustments_[calls] = _cosine_
-		# temp = 0
-		# self.data_manager['Path_OrientedData'][path_object] = []
-		# for Sampled_PolyData in self.data_manager['Path_SampleData'][path_object]:
-		# 	Geom.OrientProfile(Sampled_PolyData,self.data_manager['Path_Points'][path_object][temp],_tangent_adjustments_[temp],_cosine_adjustments_[temp],Sampled_PolyData+'O')
-		# 	self.data_manager['Path_OrientedData'][path_object].append(Sampled_PolyData+'O')
-		## Will remove in later version ##
 		for index in range(len(self.data_manager['Path_PolyData'][path_object])-1):
 			if index == 0:
 				Geom.AlignProfile(self.data_manager['Path_SampleData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index),0)
@@ -179,7 +163,10 @@ class sv_model:
 		for path_object in self.data_manager['Paths']:
 			self.__solid_subprocess__(path_object)
 		pass
-
+		#need to mirror solid generation in GUI
+		#solids created from current lofting and capping aproach
+		# are not robust and fail during meshing or smoothing
+		# contours are fine. 
 	def smooth():
 		pass
 
