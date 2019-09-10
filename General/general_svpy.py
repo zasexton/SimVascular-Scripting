@@ -20,7 +20,8 @@ class sv_model:
 								 'Path_PolyData':{},
 								 'Path_SampleData':{},
 								 'Path_AlignedData':{},
-								 'Path_Lofts':{}}
+								 'Path_Lofts':{},
+								 'Path_AlignedData_Sampled':{}}
 		except:
 			print('File_path is inaccessible...')
 			return 
@@ -116,9 +117,10 @@ class sv_model:
 			else:
 				Geom.AlignProfile(self.data_manager['Path_AlignedData'][path_object][index],self.data_manager['Path_SampleData'][path_object][index+1],path_object+'alignment'+str(index),0)
 				self.data_manager['Path_AlignedData'][path_object].append(path_object+'alignment'+str(index))
-		print(self.data_manager['Path_AlignedData'][path_object])
+		for profile in self.data_manager['Path_AlignedData'][path_object]:
+			self.data_manager['Path_AlignedData_Sampled'][path_object].append(Geom.SampleLoop(profile,NumSegs,profile+'_sampled'))
 		if spline == True:
-			Geom.LoftSolid(self.data_manager['Path_AlignedData'][path_object],path_object+'_loft',60,120,100,20,0,1)
+			Geom.LoftSolid(self.data_manager['Path_AlignedData_Sampled'][path_object],path_object+'_loft',60,120,100,20,0,1)
 		else:
 			pass #will have nurbs lofting later 
 		if self.GUI == True:
@@ -133,6 +135,7 @@ class sv_model:
 			self.data_manager['Path_SampleData'][path_object] = []
 			self.data_manager['Path_Lofts'][path_object] = []
 			self.data_manager['Path_AlignedData'][path_object] = []
+			self.data_manager['Path_AlignedData_Sampled'][path_object] = []
 			self.__geometry__(path_object)
 		return 
 
@@ -143,30 +146,50 @@ class sv_model:
 		solid.NewObject(path_object+'_solid')
 		VMTKUtils.Cap_with_ids(path_object+'_loft',path_object+'_capped',0,0)
 		solid.SetVtkPolyData(path_object+'_capped')
+		# solid.CapSurfToSolid(path_object+'_capped',path_object+'_correct')
 		self.data_manager['Solids'].append(path_object+'_capped')
-		solid.GetBoundaryFaces(90)
-		faceids = solid.GetFaceIds()
 
 	def __Union__(self):
-		from sv import Geom 
+		from sv import Geom,Solid,GUI,Geom
 		Geom.All_union(self.data_manager['Solids'],len(self.data_manager['Solids']),'Model',0.00001)
-		pass
+		s = Solid.pySolidModel()
+		s.GetModel('Model')
+		s.GetPolyData('Model_Polydata')
+		s.GetBoundaryFaces(45)
+		faceids = s.GetFaceIds()
+		for face in faceids:
+			s.GetFacePolyData(face,int(face),0.1)
+			face_type = self.__face_type__(face)
+			print(face_type)
+			# s.SetFaceAttr('type',face_type,int(face))
+		GUI.ImportPolyDataFromRepos('Model_Polydata')
+		return 
 
 	def __subtraction__(self):
 		from sv import Solid
 		temp = Solid.pySolidModel()
 		temp.Subtract('temp',self.data_manager['Solids'][0],self.data_manager['Solids'][1])
-		# temp.GetPolyData('temp_polydata')
 		return 
+
+	def __face_type__(self,face,threshold=5):
+		from sv import Solid,Repository
+		s = Solid.pySolidModel()
+		s.NewObject('temp')
+		s.SetVtkPolyData(face)
+		s.GetBoundaryFaces(threshold)
+		div = s.GetFaceIds()
+		if len(div) > 1:
+			face_type = 'wall'
+		else:
+			face_type = 'cap'
+		Repository.Delete('temp')
+		return face_type
 
 	def solid(self):
 		for path_object in self.data_manager['Paths']:
 			self.__solid_subprocess__(path_object)
 		pass
-		#need to mirror solid generation in GUI
-		#solids created from current lofting and capping aproach
-		# are not robust and fail during meshing or smoothing
-		# contours are fine. 
+
 	def smooth():
 		pass
 
@@ -185,6 +208,35 @@ class sv_model:
 	def post():
 		pass
 
+	def Export_XML(self):
+		from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+		import os 
+		model = Element('model')
+		model.set("type","PolyData")
+		timestep = SubElement(model,'timestep')
+		timestep.set("id","0")
+		model_element = SubElement(timestep,'model_element')
+		model_element.set("type","PolyData")
+		model_element.set("num_samlping","100")
+		model_element.set("use_uniform","1")
+		model_element.set("method","spline")
+		model_element.set("sampling","60")
+		model_element.set("sample_per_seg","12")
+		model_element.set("use_linear_sample","1")
+		model_element.set("linear_multiplier","10")
+		model_element.set("use_fft","0")
+		model_element.set("num_modes","20")
+		model_element.set("u_degree","2")
+		model_element.set("v_dergee","2")
+		model_element.set("u_knot_type","derivative")
+		model_element.set("v_knot_type","average")
+		model_element.set("u_parametric_type","centripetal")
+		model_element.set("v_parametric_type","chord")
+		segmentations = SubElement(timestep,'segmentations')
+		faces = SubElement(timestep,'faces')
+		
+		# ET.tostring(data,encoding='utf8').decode('utf8')
+		return 
 	def __path_lengths__(self,path_vector):
 		temp = []
 		for i in range(len(path_vector)):
