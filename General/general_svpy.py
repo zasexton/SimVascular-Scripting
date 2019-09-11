@@ -149,9 +149,11 @@ class sv_model:
 		# solid.CapSurfToSolid(path_object+'_capped',path_object+'_correct')
 		self.data_manager['Solids'].append(path_object+'_capped')
 
-	def __Union__(self):
-		from sv import Geom,Solid,GUI,Geom
+	def __Union__(self): #PASSING #CPofF 
+		from sv import Geom,Solid,GUI,Geom,Repository
+		import os 
 		Geom.All_union(self.data_manager['Solids'],len(self.data_manager['Solids']),'Model',0.00001)
+		Solid.SetKernel('PolyData')
 		s = Solid.pySolidModel()
 		s.GetModel('Model')
 		s.GetPolyData('Model_Polydata')
@@ -163,17 +165,20 @@ class sv_model:
 			face_types.append(self.__face_type__(face))
 			# s.SetFaceAttr('type',face_type,int(face))
 		self.Export_XML(faceids,face_types)
+		s.GetModel('Model')
+		os.chdir('/home/zacharysexton/Downloads')
+		s.WriteNative(os.getcwd()+'/Model_Solid.vtp')
 		GUI.ImportPolyDataFromRepos('Model_Polydata')
-
+		Repository.ReadXMLPolyData('Model_Solid','/home/zacharysexton/Downloads/Model_Solid.vtp')
 		return 
 
-	def __subtraction__(self):
+	def __subtraction__(self): #PASSING #unused
 		from sv import Solid
 		temp = Solid.pySolidModel()
 		temp.Subtract('temp',self.data_manager['Solids'][0],self.data_manager['Solids'][1])
 		return 
 
-	def __face_type__(self,face,threshold=5):
+	def __face_type__(self,face,threshold=5): #PASSING
 		from sv import Solid,Repository
 		s = Solid.pySolidModel()
 		s.NewObject('temp')
@@ -187,7 +192,7 @@ class sv_model:
 		Repository.Delete('temp')
 		return face_type
 
-	def solid(self):
+	def solid(self): #PASSING #not integrated
 		for path_object in self.data_manager['Paths']:
 			self.__solid_subprocess__(path_object)
 		pass
@@ -210,9 +215,18 @@ class sv_model:
 	def post():
 		pass
 
-	def Export_XML(self,faceids,face_types):
+	def __format_xml__(self,xml_element): #PASSING
+		from xml.etree import ElementTree
+		from xml.dom import minidom
+
+		xml_string = ElementTree.tostring(xml_element,encoding='utf8')
+		reparsed_xml = minidom.parseString(xml_string)
+		return reparsed_xml.toprettyxml(indent="  ")
+
+	def Export_XML(self,faceids,face_types): #PASSING 
 		from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 		import os 
+		print('Writing XML...')
 		model = Element('model')
 		model.set("type","PolyData")
 		timestep = SubElement(model,'timestep')
@@ -223,7 +237,7 @@ class sv_model:
 		model_element.set("use_uniform","1")
 		model_element.set("method","spline")
 		model_element.set("sampling","60")
-		model_element.set("sample_per_seg","12")
+		model_element.set("sample_per_seg","12")        #set all attributes at once in next iteration of code
 		model_element.set("use_linear_sample","1")
 		model_element.set("linear_multiplier","10")
 		model_element.set("use_fft","0")
@@ -234,8 +248,8 @@ class sv_model:
 		model_element.set("v_knot_type","average")
 		model_element.set("u_parametric_type","centripetal")
 		model_element.set("v_parametric_type","chord")
-		segmentations = SubElement(timestep,'segmentations')
-		faces = SubElement(timestep,'faces')
+		segmentations = SubElement(model_element,'segmentations')
+		faces = SubElement(model_element,'faces')
 		for i in range(len(faceids)):
 			face = SubElement(faces,'face')
 			face.set("id",faceids[i])
@@ -246,9 +260,23 @@ class sv_model:
 			face.set("color1","1")
 			face.set("color2","1")
 			face.set("color3","1")
-		print(tostring(model,encoding='utf8').decode('utf8'))
+		blend_radii = SubElement(model_element,'blend_radii')
+		blend_param = SubElement(model_element,'blend_param')
+		blend_param.set("blend_iters","2")
+		blend_param.set("sub_blend_iters","3")
+		blend_param.set("cstr_smooth_iters","2")
+		blend_param.set("lap_smooth_iters","50")
+		blend_param.set("subdivision_iters","1")
+		blend_param.set("decimation","0.01")
+		#print(tostring(model,encoding='utf8').decode('utf8')) #make optional setting
+		os.chdir('/home/zacharysexton/Downloads')
+		xml_file = open("Model_Solid.xml","w")
+		xml_file.write(self.__format_xml__(model))
+		print('Done')
 		return 
-	def __path_lengths__(self,path_vector):
+
+
+	def __path_lengths__(self,path_vector): #PASSING
 		temp = []
 		for i in range(len(path_vector)):
 			if (path_vector[i].isspace()==False and path_vector[i] != ''):
@@ -262,7 +290,7 @@ class sv_model:
 	def __linear_interp__(first_value,second_value,first_slice,second_slice):
 		pass
 
-	def clear(self):
+	def clear(self): #PASSING #will need improvement
 		from sv import Repository
 		if len(Repository.List()) == 0:
 			print('Repository Empty')
