@@ -160,8 +160,9 @@ class sv_model:
 		face_types = []
 		for face in faceids:
 			s.GetFacePolyData(face,int(face),0.1)
-			face_type.append(self.__face_type__(face))
+			face_types.append(self.__face_type__(face))
 			# s.SetFaceAttr('type',face_type,int(face))
+		self.Export_XML(faceids,face_types)
 		GUI.ImportPolyDataFromRepos('Model_Polydata')
 
 		return 
@@ -239,13 +240,13 @@ class sv_model:
 			face = SubElement(faces,'face')
 			face.set("id",faceids[i])
 			face.set("name","Model_"+faceids[i])
-			face.set("type",face_type[i])
+			face.set("type",face_types[i])
 			face.set("visible","true")
 			face.set("opacity","1")
 			face.set("color1","1")
 			face.set("color2","1")
 			face.set("color3","1")
-		print(tostring(data,encoding='utf8').decode('utf8'))
+		print(tostring(model,encoding='utf8').decode('utf8'))
 		return 
 	def __path_lengths__(self,path_vector):
 		temp = []
