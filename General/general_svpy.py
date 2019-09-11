@@ -157,12 +157,13 @@ class sv_model:
 		s.GetPolyData('Model_Polydata')
 		s.GetBoundaryFaces(45)
 		faceids = s.GetFaceIds()
+		face_types = []
 		for face in faceids:
 			s.GetFacePolyData(face,int(face),0.1)
-			face_type = self.__face_type__(face)
-			print(face_type)
+			face_type.append(self.__face_type__(face))
 			# s.SetFaceAttr('type',face_type,int(face))
 		GUI.ImportPolyDataFromRepos('Model_Polydata')
+
 		return 
 
 	def __subtraction__(self):
@@ -208,7 +209,7 @@ class sv_model:
 	def post():
 		pass
 
-	def Export_XML(self):
+	def Export_XML(self,faceids,face_types):
 		from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 		import os 
 		model = Element('model')
@@ -234,8 +235,17 @@ class sv_model:
 		model_element.set("v_parametric_type","chord")
 		segmentations = SubElement(timestep,'segmentations')
 		faces = SubElement(timestep,'faces')
-		
-		# ET.tostring(data,encoding='utf8').decode('utf8')
+		for i in range(len(faceids)):
+			face = SubElement(faces,'face')
+			face.set("id",faceids[i])
+			face.set("name","Model_"+faceids[i])
+			face.set("type",face_type[i])
+			face.set("visible","true")
+			face.set("opacity","1")
+			face.set("color1","1")
+			face.set("color2","1")
+			face.set("color3","1")
+		print(tostring(data,encoding='utf8').decode('utf8'))
 		return 
 	def __path_lengths__(self,path_vector):
 		temp = []
