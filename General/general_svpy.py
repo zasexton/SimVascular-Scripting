@@ -15,6 +15,7 @@ class sv_model:
 								 'VTK'        :[],
 								 'Mesh'       :[],
 								 'Simulation' :[],
+								 'Full_Paths' :{},
 								 'Path_Points':{},
 								 'Path_Contours':{},
 								 'Path_PolyData':{},
@@ -62,7 +63,7 @@ class sv_model:
 		Contour.SetContourKernel('Circle')
 		c = Contour.pyContour()
 		c.NewObject('C_'+path_object+'_'+str(slice_index),path_object,slice_index)
-		c.SetCtrlPtsByRadius(self.data_manager['Path_Points'][path_object][int(slice_index/25)],radius) #change later
+		c.SetCtrlPtsByRadius(self.data_manager['Full_Paths'][path_object][int(slice_index)],radius) #change later
 		c.Create()
 		self.data_manager['Contours'].append('C_'+path_object+'_'+str(slice_index))
 		self.data_manager['Path_Contours'][path_object].append('C_'+path_object+'_'+str(slice_index))
@@ -81,6 +82,7 @@ class sv_model:
 			p.GetObject(path_object)
 			slice_index = []
 			object_path = p.GetPathPosPts()
+			self.data_manager['Full_Paths'][path_object] = object_path
 			for path_point in self.data_manager['Path_Points'][path_object]:
 				slice_index.append(object_path.index(path_point))
 		else:
@@ -98,6 +100,7 @@ class sv_model:
 		for path_object in self.data_manager['Paths']:
 			self.data_manager['Path_Contours'][path_object] = []
 			self.data_manager['Path_PolyData'][path_object] = []
+			self.data_manager['Full_Paths'][path_object] = None 
 			self.__contour_path__(path_object)		
 		pass
 
@@ -149,10 +152,11 @@ class sv_model:
 		# solid.CapSurfToSolid(path_object+'_capped',path_object+'_correct')
 		self.data_manager['Solids'].append(path_object+'_capped')
 
-	def __Union__(self): #PASSING #CPofF 
+	def __Union__(self): #PASSING #CPofF  ##too much in function
 		from sv import Geom,Solid,GUI,Geom,Repository
 		import os 
-		Geom.All_union(self.data_manager['Solids'],len(self.data_manager['Solids']),'Model',0.00001)
+		Geom.All_union(self.data_manager['Solids'],0,'Model',0.00001) #len(self.data_manager['Solids'])
+		print(self.data_manager['Solids'])
 		Solid.SetKernel('PolyData')
 		s = Solid.pySolidModel()
 		s.GetModel('Model')
@@ -160,17 +164,47 @@ class sv_model:
 		s.GetBoundaryFaces(45)
 		faceids = s.GetFaceIds()
 		face_types = []
+		self.wall_list = []
 		for face in faceids:
 			s.GetFacePolyData(face,int(face),0.1)
 			face_types.append(self.__face_type__(face))
+			if face_types[-1] == 'wall':
+				self.wall_list.append(int(face))
+			else:
+				pass
 			# s.SetFaceAttr('type',face_type,int(face))
-		self.Export_XML(faceids,face_types)
+		#self.Export_XML(faceids,face_types)
 		s.GetModel('Model')
 		os.chdir('/home/zacharysexton/Downloads')
 		s.WriteNative(os.getcwd()+'/Model_Solid.vtp')
-		GUI.ImportPolyDataFromRepos('Model_Polydata')
-		Repository.ReadXMLPolyData('Model_Solid','/home/zacharysexton/Downloads/Model_Solid.vtp')
+		#s.WriteNative(os.getcwd()+'/Model_Solid.vtp')
+		#GUI.ImportPolyDataFromRepos('Model_Polydata')
+		#Repository.ReadXMLPolyData('Model_Solid','/home/zacharysexton/Downloads/Model_Solid.vtp')
 		return 
+
+	def garbage_union(self):
+		from sv import Geom,Solid,GUI,Geom,Repository
+		import os 
+		Solid.SetKernel('PolyData')
+		s = Solid.pySolidModel()
+		for solid_idx in range(len(self.data_manager['Solids'])-1):
+			if solid_idx == 0:
+				Geom.All_union([self.data_manager['Solids'][solid_idx],self.data_manager['Solids'][solid_idx+1]],1,'temp')
+				if len(self.data_manager['Solids']) == 2:
+					break 
+			elif (solid_idx != len(self.data_manager['Solids'])-1) and Repository.Exists('temp_replace')==False:
+				Geom.All_union(['temp',self.data_manager['Solids'][solid_idx+1]],1,'temp_replace')
+				Repository.Delete('temp')
+			elif (solid_idx != len(self.data_manager['Solids'])-1) and Repository.Exists('temp')==False:
+				Geom.All_union(['temp_replace',self.data_manager['Solids'][solid_idx+1]],1,'temp')
+				Repository.Delete('temp_replace')
+			else:
+				if Repository.Exists('temp'):
+					Geom.All_union(['temp',self.data_manager['Solids'][solid_idx+1]],1,'Model')
+				else:
+					Geom.All_union(['temp_replace',self.data_manager['Solids'][solid_idx+1]],1,'Model')
+		return 
+
 
 	def __subtraction__(self): #PASSING #unused
 		from sv import Solid
@@ -197,12 +231,33 @@ class sv_model:
 			self.__solid_subprocess__(path_object)
 		pass
 
-	def smooth():
+	def smooth(): 
 		pass
 
-	def mesh():
-		pass 
+	def mesh(self):
+		 from sv import MeshObject,GUI,Repository
+		 import os
+		 MeshObject.SetKernel('TetGen')
 
+		 msh = MeshObject.pyMeshObject()
+		 msh.NewObject('Model_mesh')
+
+		 msh.LoadModel(os.getcwd()+'/Model_Solid.vtp')
+		 msh.NewMesh()
+
+		 msh.SetMeshOptions('SurfaceMeshFlag',[1])
+		 msh.SetMeshOptions('VolumeMeshFlag',[1])
+		 msh.SetMeshOptions('GlobalEdgeSize',[0.3])
+		 msh.SetMeshOptions('MeshWallFirst',[1])
+		 msh.SetWalls(self.wall_list)
+		 msh.GenerateMesh()
+
+		 fileName = os.getcwd()+'/Solid_Model.vtk'
+		 msh.WriteMesh(fileName)
+		 msh.GetUnstructuredGrid('ug')
+		 Repository.WriteVtkUnstructuredGrid('ug','ascii',fileName)
+
+		 GUI.ImportUnstructedGridFromRepos('ug')
 
 	def pre():
 		pass
