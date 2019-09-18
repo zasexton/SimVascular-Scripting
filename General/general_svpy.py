@@ -155,9 +155,9 @@ class sv_model:
 	def __Union__(self): #PASSING #CPofF  ##too much in function
 		from sv import Geom,Solid,GUI,Geom,Repository
 		import os 
+		Solid.SetKernel('PolyData')
 		Geom.All_union(self.data_manager['Solids'],0,'Model',0.00001) #len(self.data_manager['Solids'])
 		print(self.data_manager['Solids'])
-		Solid.SetKernel('PolyData')
 		s = Solid.pySolidModel()
 		s.GetModel('Model')
 		s.GetPolyData('Model_Polydata')
@@ -189,20 +189,20 @@ class sv_model:
 		s = Solid.pySolidModel()
 		for solid_idx in range(len(self.data_manager['Solids'])-1):
 			if solid_idx == 0:
-				Geom.All_union([self.data_manager['Solids'][solid_idx],self.data_manager['Solids'][solid_idx+1]],1,'temp')
+				Geom.All_union([self.data_manager['Solids'][solid_idx],self.data_manager['Solids'][solid_idx+1]],1,'temp',0.000001)
 				if len(self.data_manager['Solids']) == 2:
 					break 
 			elif (solid_idx != len(self.data_manager['Solids'])-1) and Repository.Exists('temp_replace')==False:
-				Geom.All_union(['temp',self.data_manager['Solids'][solid_idx+1]],1,'temp_replace')
+				Geom.All_union(['temp',self.data_manager['Solids'][solid_idx+1]],1,'temp_replace',0.000001)
 				Repository.Delete('temp')
 			elif (solid_idx != len(self.data_manager['Solids'])-1) and Repository.Exists('temp')==False:
-				Geom.All_union(['temp_replace',self.data_manager['Solids'][solid_idx+1]],1,'temp')
+				Geom.All_union(['temp_replace',self.data_manager['Solids'][solid_idx+1]],1,'temp',0.000001)
 				Repository.Delete('temp_replace')
 			else:
 				if Repository.Exists('temp'):
-					Geom.All_union(['temp',self.data_manager['Solids'][solid_idx+1]],1,'Model')
+					Geom.All_union(['temp',self.data_manager['Solids'][solid_idx+1]],1,'Model',0.000001)
 				else:
-					Geom.All_union(['temp_replace',self.data_manager['Solids'][solid_idx+1]],1,'Model')
+					Geom.All_union(['temp_replace',self.data_manager['Solids'][solid_idx+1]],1,'Model',0.000001)
 		return 
 
 
