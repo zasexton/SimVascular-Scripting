@@ -152,7 +152,7 @@ class sv_model:
 		# solid.CapSurfToSolid(path_object+'_capped',path_object+'_correct')
 		self.data_manager['Solids'].append(path_object+'_capped')
 
-	def __Union__(self): #PASSING #CPofF  ##too much in function
+	def __Union__(self): #PASSING #CPofF  ##too much in function #PASSING
 		from sv import Geom,Solid,GUI,Geom,Repository
 		import os 
 		Solid.SetKernel('PolyData')
@@ -182,7 +182,7 @@ class sv_model:
 		#Repository.ReadXMLPolyData('Model_Solid','/home/zacharysexton/Downloads/Model_Solid.vtp')
 		return 
 
-	def garbage_union(self):
+	def garbage_union(self): # may be removed later 
 		from sv import Geom,Solid,GUI,Geom,Repository
 		import os 
 		Solid.SetKernel('PolyData')
@@ -234,7 +234,7 @@ class sv_model:
 	def smooth(): 
 		pass
 
-	def mesh(self):
+	def mesh(self): #PASSING
 		 from sv import MeshObject,GUI,Repository
 		 import os
 		 MeshObject.SetKernel('TetGen')
@@ -258,17 +258,19 @@ class sv_model:
 		 Repository.WriteVtkUnstructuredGrid('ug','ascii',fileName)
 
 		 GUI.ImportUnstructedGridFromRepos('ug')
+		 # Need to write the mesh complete folder on demand for live scripts 
 
 	def pre():
 		pass
-
+		# locate svPreSolver 
 
 	def sim():
 		pass
-
+		# locate svSolver 
 
 	def post():
 		pass
+		# locate svPostSolver
 
 	def __format_xml__(self,xml_element): #PASSING
 		from xml.etree import ElementTree
