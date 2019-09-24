@@ -358,4 +358,42 @@ class sv_model:
 			for key in self.data_manager.keys():
 				self.data_manager[key] = []
 			print('Data Manager Cleared')
-		return
+
+	def oneDsolver(self):
+		# match all coordinates
+		pass 
+
+	def connectivity(self): # WAITING
+		pass 
+
+	def write1D_files(self): #BUILDING
+		import time
+		filename = time.asctime()+'_model.in'
+		modelname = filename.replace(' ','')
+		modelname = modelname.replace('.in','_Stready_RCR_')
+		solver_file = open(filename,'w+')
+		print('Writing 1D model...')
+		solver_file.write("# =====================================\n")
+		solver_file.write("# GenericPy_Steady MODEL - UNITS IN CGS\n")
+		solver_file.write("# =====================================\n\n")
+		solver_file.write("# ==========\n# MODEL CARD\n# ==========\n")
+		solver_file.write("# - Name of the model (string)\n\n")
+		solver_file.write("MODEL "+modelname+"\n\n")
+		solver_file.write("# ==========\n# NODE CARD\n# ==========\n")
+		solver_file.write("# - Node Name (double)\n# - Node X Coordinate \
+			              (double)\n# - Node Y Coordinate (double)\n# - \
+			              Node Z Coordinate (double)\n\n")
+		for node in NODES:
+			solver_file.write("NODE {} {} {} {}\n".format(node.id,node.x,node.y,node.z))
+		solver_file.write("\n\n")
+		solver_file.write("# ==========\n# JOINT CARD\n# ==========\n")
+		solver_file.write("# - Joint Name (string)\n# - Joint Node \
+			              (double)\n# - Joint Inlet Name (string)\n# - \
+			              Joint Outlet Name (string)\n\n")
+		solver_file.write("# ================================\n")
+		solver_file.write("# JOINTINLET AND JOINTOUTLET CARDS\n")
+		solver_file.write("# ================================\n")
+		solver_file.write("# - Inlet/Outlet Name (string)\n# - Total\
+		 				   Number of segments (int)\n# - List of \
+		 				   segments (list of int)\n\n")
+		solver_file.close()
