@@ -72,7 +72,7 @@ class sv_model:
 		self.data_manager['Path_PolyData'][path_object].append('C_'+path_object+'_'+str(slice_index)+'p')
 		return 'C_'+path_object+'_'+str(slice_index)
 
-	def __contour_path__(self,path_object,slices=None):
+	def __contour_path__(self,path_object,slices=None): #PASSING
 		from sv import GUI,Path
 		path_contour_list = []
 		if slices==None:
@@ -105,7 +105,7 @@ class sv_model:
 		pass
 
 
-	def __geometry__(self,path_object,spline=True,NumSegs=60):
+	def __geometry__(self,path_object,spline=True,NumSegs=60): #PASSING
 		from sv import Geom,GUI,Solid
 		import math
 		for PolyData in self.data_manager['Path_PolyData'][path_object]:
@@ -133,7 +133,7 @@ class sv_model:
 			pass
 		return 
 
-	def loft(self):	
+	def loft(self):	#PASSING
 		for path_object in self.data_manager['Paths']:
 			self.data_manager['Path_SampleData'][path_object] = []
 			self.data_manager['Path_Lofts'][path_object] = []
@@ -142,7 +142,7 @@ class sv_model:
 			self.__geometry__(path_object)
 		return 
 
-	def __solid_subprocess__(self,path_object):
+	def __solid_subprocess__(self,path_object): #PASSING
 		from sv import Solid,Repository,VMTKUtils
 		Solid.SetKernel('PolyData')
 		solid = Solid.pySolidModel()
@@ -172,14 +172,9 @@ class sv_model:
 				self.wall_list.append(int(face))
 			else:
 				pass
-			# s.SetFaceAttr('type',face_type,int(face))
-		#self.Export_XML(faceids,face_types)
 		s.GetModel('Model')
 		os.chdir('/home/zacharysexton/Downloads')
 		s.WriteNative(os.getcwd()+'/Model_Solid.vtp')
-		#s.WriteNative(os.getcwd()+'/Model_Solid.vtp')
-		#GUI.ImportPolyDataFromRepos('Model_Polydata')
-		#Repository.ReadXMLPolyData('Model_Solid','/home/zacharysexton/Downloads/Model_Solid.vtp')
 		return 
 
 	def garbage_union(self): # may be removed later 
