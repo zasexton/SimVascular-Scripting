@@ -364,7 +364,7 @@ class sv_model:
 		pass 
 
 	def connectivity(self): # WAITING
-		pass 
+
 
 	def write1D_files(self): #BUILDING
 		import time
@@ -396,4 +396,28 @@ class sv_model:
 		solver_file.write("# - Inlet/Outlet Name (string)\n# - Total\
 		 				   Number of segments (int)\n# - List of \
 		 				   segments (list of int)\n\n")
-		solver_file.close()
+
+class node:
+	import weakref
+	_instances = set()
+	def __init__(self,coordinates,unique_id):
+		import weakref
+		self.position = coordinates
+		self.id = unique_id # integer
+		self.input = {} # node id of parent
+		self.output = {} # node is of daughter
+		self.inlet = False
+		self.outlet = False
+		self._instances.add(weakref(self))
+	def move():
+		pass # not implemented yet
+	@classmethod
+	def getinstances(cls):
+		set_return = set()
+		for pointer in cls._instances:
+			obj = pointer()
+			if obj is not None:
+				yield obj
+			else:
+				set_return.add(pointer)
+			cls._instances -= set_return 
