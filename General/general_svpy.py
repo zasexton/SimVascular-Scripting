@@ -36,6 +36,7 @@ class sv_model:
 		from sv import Path,GUI,Repository
 		p = Path.pyPath()
 		p.NewObject(sv_path_name)
+
 		self.data_manager['Path_Points'][sv_path_name] = []
 		for i in range(len(sv_path[:,0])):
 			temp = []
@@ -63,6 +64,7 @@ class sv_model:
 		Contour.SetContourKernel('Circle')
 		c = Contour.pyContour()
 		c.NewObject('C_'+path_object+'_'+str(slice_index),path_object,slice_index)
+
 		c.SetCtrlPtsByRadius(self.data_manager['Full_Paths'][path_object][int(slice_index)],radius) #change later
 		c.Create()
 		self.data_manager['Contours'].append('C_'+path_object+'_'+str(slice_index))
