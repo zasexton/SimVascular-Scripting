@@ -360,9 +360,19 @@ class sv_model:
 		# match all coordinates
 		pass 
 
-	def connectivity(self): # WAITING
-
-
+	def __node_construction__(self): # WAITING
+		temp = set()
+		self.NODES = []
+		for path in self.data_manager['Paths']:
+			for point_index in range(len(self.data_manager['Path_Points'][path])-1):
+				if str(self.data_manager['Path_Points'][path][point_index]) in temp:
+					continue
+				else:
+					temp.add(str(point))
+					self.NODES.append(node(str(self.data_manager['Path_Points'][path][point_index]),len(temp)+1))
+		return
+	def connectivity(self):
+		
 	def write1D_files(self): #BUILDING
 		import time
 		filename = time.asctime()+'_model.in'
@@ -405,7 +415,7 @@ class node:
 		self.output = {} # node is of daughter
 		self.inlet = False
 		self.outlet = False
-		self._instances.add(weakref(self))
+		self._instances.add(weakref.ref(self))
 	def move():
 		pass # not implemented yet
 	@classmethod
