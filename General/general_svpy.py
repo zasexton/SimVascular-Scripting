@@ -371,7 +371,7 @@ class sv_model:
 					temp.add(str(point))
 					self.NODES.append(node(str(self.data_manager['Path_Points'][path][point_index]),len(temp)+1))
 		return
-	def connectivity(self):
+
 		
 	def write1D_files(self): #BUILDING
 		import time
