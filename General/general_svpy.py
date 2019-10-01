@@ -361,8 +361,27 @@ class sv_model:
 		pass 
 
 
-		
-	def write1D_files(self): #BUILDING
+	def connectivity(self): #change to node construction
+		node_set = set()
+		NODE = []
+		for path in self.data_manager['Paths']:
+			for point in self.data_manager['Path_Points'][path]:
+				if str(point[1]) in node_set:
+					continue #this needs to account for segment intersegment connections
+				else:
+					node_set.add(str(point[1]))
+					NODE.append(node(point,len(node_set))
+					if point[0] > 0:
+						NODE[-1].input.add(self.data_manager['Path_Points'][path][point[0]-1]
+					elif point[0] < len(self.data_manager['Path_Points'][path]):
+						NODE[-1].input.add(self.data_manager['Path_Points'][path][point[0]+1]
+					else:
+						pass
+	def connection_check(NODES): #Change name to something that makes more sense like "joint" to mimic weigwang's 1d solver
+		pass
+	def boundary_faces(self): # This will assign the boundaries to the 1d model and allow the simulation to be run
+		pass
+	def write1D_files(self): #BUILDING This function will construct the .in solver card file for C++ solver 1D in simvascular
 		import time
 		filename = time.asctime()+'_model.in'
 		modelname = filename.replace(' ','')
@@ -392,6 +411,7 @@ class sv_model:
 		solver_file.write("# - Inlet/Outlet Name (string)\n# - Total\
 		 				   Number of segments (int)\n# - List of \
 		 				   segments (list of int)\n\n")
+
 
 class node:
 	import weakref
