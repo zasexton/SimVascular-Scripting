@@ -367,6 +367,7 @@ class sv_model:
 		for path in self.data_manager['Paths']:
 			for point in self.data_manager['Path_Points'][path]:
 				if str(point[1]) in node_set:
+					temp_save = point[i] # saved for connection id to subsequent node
 					continue #this needs to account for segment intersegment connections
 				else:
 					node_set.add(str(point[1]))
@@ -377,6 +378,9 @@ class sv_model:
 						NODE[-1].input.add(self.data_manager['Path_Points'][path][point[0]+1]
 					else:
 						pass
+				try:
+					temp_save in nonlocal or temp_save in global # this def needs to be fixed to have a more robust method for checking existance
+					NODE[-1].input.add(temp_save)
 	def connection_check(NODES): #Change name to something that makes more sense like "joint" to mimic weigwang's 1d solver
 		pass
 	def boundary_faces(self): # This will assign the boundaries to the 1d model and allow the simulation to be run
